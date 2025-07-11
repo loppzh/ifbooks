@@ -1,10 +1,13 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import { useCartStore } from '@/stores/cart'
+
+const cartStore = useCartStore()
 </script>
 
 <template>
   <main>
-    <section class="cart">
+    <section v-if="cartStore.cart.items.length > 0" class="cart">
       <h2>Carrinho</h2>
       <table>
         <thead>
@@ -15,60 +18,33 @@ import { RouterLink } from 'vue-router'
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr v-for="book in cartStore.cart.items" :key="book.id">
             <td class="cart-item">
-              <img src="/covers/a-hora-da-estrela.png" alt="A hora da estrela" />
+              <img :src="book.cover" alt="A hora da estrela" />
               <div class="cart-item-info">
-                <p class="cart-item-title">A hora da estrela</p>
-                <p class="cart-item-author">Clarice Lispector</p>
-                <p class="cart-item-price">R$ 16.84</p>
+                <p class="cart-item-title">{{ book.title }}</p>
+                <p class="cart-item-author">{{ book.author }}</p>
+                <p class="cart-item-price">{{ book.price.toFixed(2) }}</p>
               </div>
             </td>
             <td>
               <div class="cart-item-quantity">
-                <button class="plain"><span class="mdi mdi-minus"></span></button> 1
-                <button class="plain"><span class="mdi mdi-plus"></span></button>
+                <button @click="cartStore.decrementBookToCart(book)" class="plain">
+                  <span class="mdi mdi-minus"></span>
+                </button>
+                {{ book.quantity }}
+                <button @click="cartStore.incrementBookToCart(book)" class="plain">
+                  <span class="mdi mdi-plus"></span>
+                </button>
               </div>
             </td>
-            <td class="cart-item-subtotal">R$ 16.84</td>
-          </tr>
-          <tr>
-            <td class="cart-item">
-              <img src="/covers/a-livraria.png" alt="A livraria" />
-              <div class="cart-item-info">
-                <p class="cart-item-title">A livraria</p>
-                <p class="cart-item-author">Penelope Fitzgerald</p>
-                <p class="cart-item-price">R$ 13.94</p>
-              </div>
-            </td>
-            <td>
-              <div class="cart-item-quantity">
-                <button class="plain"><span class="mdi mdi-minus"></span></button> 1
-                <button class="plain"><span class="mdi mdi-plus"></span></button>
-              </div>
-            </td>
-            <td class="cart-item-subtotal">R$ 13.94</td>
-          </tr>
-          <tr>
-            <td class="cart-item">
-              <img src="/covers/comigo-na-livraria.png" alt="Comigo na livraria" />
-              <div class="cart-item-info">
-                <p class="cart-item-title">Comigo na livraria</p>
-                <p class="cart-item-author">Martha Medeiros</p>
-                <p class="cart-item-price">R$ 23.24</p>
-              </div>
-            </td>
-            <td>
-              <div class="cart-item-quantity">
-                <button class="plain"><span class="mdi mdi-minus"></span></button> 1
-                <button class="plain"><span class="mdi mdi-plus"></span></button>
-              </div>
-            </td>
-            <td class="cart-item-subtotal">R$ 23.24</td>
+            <td class="cart-item-subtotal">{{ (book.quantity * book.price).toFixed(2) }}</td>
           </tr>
         </tbody>
       </table>
-      <a href="/" class=""><button class="outlined">Voltar para loja</button></a>
+      <Router-link to="/">
+        <button class="outlined">Voltar para loja</button>
+      </Router-link>
       <div class="cart-summary">
         <div class="cupom">
           <input type="text" placeholder="Código do cupom" /><button>Inserir cupom</button>
@@ -76,12 +52,19 @@ import { RouterLink } from 'vue-router'
         <div class="summary">
           <h2>Total da Compra</h2>
           <div class="summary-items">
-            <span>Produtos</span> <span>R$ 54.02</span><span>Frete</span> <span> Grátis</span>
-            <span>Total</span><span>R$ 54.02</span>
+            <span>Produtos</span> <span>R$ {{ cartStore.cart.total.toFixed(2) }}</span
+            ><span>Frete</span> <span> Grátis</span> <span>Total</span
+            ><span>R$ {{ cartStore.cart.total.toFixed(2) }}</span>
           </div>
           <button>Ir para pagamento</button>
         </div>
       </div>
+    </section>
+    <section v-else class="cart">
+      <h2>Carrinho vazio</h2>
+      <Router-link to="/">
+        <button class="outlined">Voltar para loja</button>
+      </Router-link>
     </section>
   </main>
 </template>
